@@ -69,29 +69,28 @@ Your release is named vault. To learn more about the release, try:
 
 now once you check resources using kubectl found that vault pod is stuck in 0/1 Running because we need to exec into the pod and unseal the keys
 
-anis.shaikh@C02F60RVML7H Desktop % kubectl get all
-NAME                                        READY   STATUS              RESTARTS   AGE
-pod/vault-0                                 0/1     Running             0          40s
-pod/vault-agent-injector-77fd4cb69f-npbl9   0/1     ContainerCreating   0          42s
+
+
+anis.shaikh@C02F60RVML7H hashicorp-vault % kubectl get all
+NAME                                        READY   STATUS         RESTARTS        AGE
+pod/vault-0                                 0/1     Running             0          35m
+pod/vault-agent-injector-77fd4cb69f-npbl9   1/1     ContainerCreating   0          35m
 
 NAME                               TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)             AGE
 service/kubernetes                 ClusterIP   10.96.0.1        <none>        443/TCP             11d
-service/vault                      ClusterIP   10.100.90.213    <none>        8200/TCP,8201/TCP   42s
-service/vault-agent-injector-svc   ClusterIP   10.107.152.178   <none>        443/TCP             42s
-service/vault-internal             ClusterIP   None             <none>        8200/TCP,8201/TCP   42s
-service/vault-ui                   ClusterIP   10.107.61.141    <none>        8200/TCP            42s
+service/vault                      ClusterIP   10.100.90.213    <none>        8200/TCP,8201/TCP   35m
+service/vault-agent-injector-svc   ClusterIP   10.107.152.178   <none>        443/TCP             35m
+service/vault-internal             ClusterIP   None             <none>        8200/TCP,8201/TCP   35m
+service/vault-ui                   ClusterIP   10.107.61.141    <none>        8200/TCP            35m
 
 NAME                                   READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/vault-agent-injector   0/1     1            0           42s
+deployment.apps/vault-agent-injector   1/1     1            1           35m
 
 NAME                                              DESIRED   CURRENT   READY   AGE
-replicaset.apps/vault-agent-injector-77fd4cb69f   1         1         0       42s
+replicaset.apps/vault-agent-injector-77fd4cb69f   1         1         1       35m
 
 NAME                     READY   AGE
-statefulset.apps/vault   0/1     42s
-
-
-
+statefulset.apps/vault   0/1     35m
 
 
 
