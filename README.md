@@ -11,6 +11,7 @@ But for best practice we need to change thing in values.yaml and install
 First search repo using command 
 
 $ helm search repo vault --versions
+```` yaml
 
 NAME           	CHART VERSION	APP VERSION	DESCRIPTION                               
 hashicorp/vault	0.23.0       	1.12.1     	Official HashiCorp Vault Chart            
