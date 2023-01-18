@@ -69,7 +69,7 @@ Your release is named vault. To learn more about the release, try:
 
 now once you check resources using kubectl found that vault pod is stuck in 0/1 Running because we need to exec into the pod and unseal the keys
 
-
+``` yaml
 
 anis.shaikh@C02F60RVML7H hashicorp-vault % kubectl get all
 NAME                                        READY   STATUS         RESTARTS        AGE
