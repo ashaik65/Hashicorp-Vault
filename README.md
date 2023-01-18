@@ -92,6 +92,127 @@ replicaset.apps/vault-agent-injector-77fd4cb69f   1         1         1       35
 
 NAME                     READY   AGE
 statefulset.apps/vault   0/1     35m
+````
+
+### Initialising Vault ###
+As in previous step we see that vault is stuck in Run
+```` yaml
+
+kubectl exec -it vault-0 -- sh
+
+## once exec into the pod we need to fire vault commands
+
+vault operator init ----> to initialised vault
+
+vault operator unseal ----> to unseal the secret (we need to fire this commnad  atlist 3 times for unseal)
+
+kubectl -n vault exec -it vault-0 -- vault status   ----> check unsealing status
+
+### Now we will login to UI ###
+
+kubectl vault get svc
+kubectl port-forward svc/vault-ui 3000:8200  # Note:- we can expose ui via Ingress,NodePort,LoadBalancer 
+````
+### Enable Kubernetes Authentication ###
+
+For the injector to be authorised to access vault, we need to enable K8s auth
+````yaml
+
+kubectl exec -it vault-0 -- sh  
+
+vault login
+Token (will be hidden) We need to put root token at the time of unseal 
+
+Success! You are now authenticated. The token information displayed below
+is already stored in the token helper. You do NOT need to run "vault login"
+again. Future Vault requests will automatically use this token.
+
+Key                  Value
+---                  -----
+token                hvs.bjaRGRjTh0XLY075dBxoiXVR
+token_accessor       DwAwvmL3Z4hTwfrlWmLHPBF8
+token_duration       ∞
+token_renewable      false
+token_policies       ["root"]
+identity_policies    []
+policies             ["root"]
+
+vault auth enable kubernetes ---> enable the kubernetes auth
+
+Success! Enabled kubernetes auth method at: kubernetes/
+## Now we need write auth configuration
+vault write auth/kubernetes/config \
+token_reviewer_jwt="$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)" \
+kubernetes_host=https://${KUBERNETES_PORT_443_TCP_ADDR}:443 \
+kubernetes_ca_cert=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt \
+issuer="https://kubernetes.default.svc.cluster.local"
+
+Success! Data written to: auth/kubernetes/config
+
+## now check in vault UI ---> Authentication Methods ----> Auth Methods ----> we can see kubrenetes auth
+````
+
+### Basic Secret Injection ###
+
+In order for us to start using secrets in vault, we need to setup a policy.
+
+````yaml
+
+#Create a role for our app
+
+kubectl -n vault exec -it vault-0 -- sh 
+
+vault write auth/kubernetes/role/basic-secret-role \
+   bound_service_account_names=basic-secret \
+   bound_service_account_namespaces=example-app \
+   policies=basic-secret-policy \
+   ttl=1h
+
+Success! Data written to: auth/kubernetes/role/basic-secret-role
+
+# Now we need to go to vault UI again see this role has been created or not
+The above maps our Kubernetes service account, used by our pod, to a policy. Now lets create the policy to map our service account to a bunch of secrets
+
+kubectl -n vault exec -it vault-0 -- sh 
+
+cat <<EOF > /home/vault/app-policy.hcl
+path "secret/basic-secret/*" {
+  capabilities = ["read"]
+}
+EOF
+vault policy write basic-secret-policy /home/vault/app-policy.hcl
+
+Success! Uploaded policy: basic-secret-policy
+
+# now we can go to vault UI and see whether this policy is create or not
+
+Now our service account for our pod can access all secrets under secret/basic-secret/* Lets create some secrets.
+
+kubectl -n vault exec -it vault-0 -- sh 
+
+vault secrets enable -path=secret/ kv
+
+Success! Enabled the kv secrets engine at: secret/
+
+vault kv put secret/basic-secret/helloworld username=dbuser password=sUp3rS3cUr3P@ssw0rd # in this steps we are putting secrets.
+
+Success! Data written to: secret/basic-secret/helloworld
+
+# Now we need to deploy our application with current requriments
+Lets deploy our app and see if it works:
+
+kubectl create ns example-app
+
+kubectl apply -f deployment.yaml -n example-app 
+
+kubectl -n example-app get pods
+
+Once the pod is ready, the secret is injected into the pod at the following location:
+
+kubectl -n example-app exec <pod-name> -- sh -c "cat /vault/secrets/helloworld"
+
+
+
 
 
 
