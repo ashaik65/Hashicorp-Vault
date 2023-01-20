@@ -75,7 +75,7 @@ now once you check resources using kubectl found that vault pod is stuck in 0/1 
 anis.shaikh@C02F60RVML7H hashicorp-vault % kubectl get all
 NAME                                        READY   STATUS         RESTARTS        AGE
 pod/vault-0                                 0/1     Running             0          35m
-pod/vault-agent-injector-77fd4cb69f-npbl9   1/1     ContainerCreating   0          35m
+pod/vault-agent-injector-77fd4cb69f-npbl9   0/1     ContainerCreating   0          35m
 
 NAME                               TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)             AGE
 service/kubernetes                 ClusterIP   10.96.0.1        <none>        443/TCP             11d
