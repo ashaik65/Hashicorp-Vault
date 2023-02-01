@@ -212,6 +212,7 @@ Once the pod is ready, the secret is injected into the pod at the following loca
 kubectl -n example-app exec <pod-name> -- sh -c "cat /vault/secrets/helloworld"
 
 
+<img width="1186" alt="Screenshot 2021-10-28 at 1 46 45 PM" src="https://user-images.githubusercontent.com/34375439/216029765-27bb1fcd-d8b4-46f8-aac6-0744bcb12c76.png">
 
 
 
